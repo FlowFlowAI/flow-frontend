@@ -28,7 +28,7 @@ export default function Header ()
   const [ user, setUser ] = useState( { loggedIn: null } )
   const { session, signIn, isLoading } = useAuthContext()
   let onClick = () => {
-    signIn("/create")
+    signIn("/api/auth")
     
   }
 
@@ -178,7 +178,8 @@ export default function Header ()
             
             >
               Sign in with Google
-            </button>
+          </button>
+          
           {user.loggedIn
         ? <AuthedState />
         : <UnauthenticatedState />

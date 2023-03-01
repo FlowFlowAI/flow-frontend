@@ -10,7 +10,6 @@ import { WalletDocument } from "../generated/graphql"
 import { getClientFromSession } from "../src/graphql/getClientFromSession"
 
 
-
 type AuthComponentProps = {
   children: React.ReactNode
   requireAuth: boolean | undefined
@@ -35,8 +34,10 @@ export function AuthProvider({ children, requireAuth }: AuthComponentProps) {
   const isLoading = sessionLoading || isAuthenticating
 
   const signIn = useCallback(async (callbackUrl?: string) => {
-    setIsAuthenticating(true)
-    await nextAuthSignIn("niftory", { callbackUrl })
+    setIsAuthenticating( true )
+    console.log("this is call back url -------------------->>>>>>>>>>>>>>>>>>",callbackUrl)
+    await nextAuthSignIn( "niftory", { callbackUrl } )
+    console.log("this is call back url after -------------------->>>>>>>>>>>>>>>>>>",callbackUrl)
     setIsAuthenticating(false)
   }, [])
 
