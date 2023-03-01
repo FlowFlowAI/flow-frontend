@@ -28,7 +28,7 @@ export default function Header ()
   const [ user, setUser ] = useState( { loggedIn: null } )
   const { session, signIn, isLoading } = useAuthContext()
   let onClick = () => {
-    signIn("/api/auth")
+    signIn("/api/auth") 
     
   }
 

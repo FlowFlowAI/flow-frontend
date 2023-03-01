@@ -195,7 +195,9 @@ export default function Mint() {
   const [numberOfImages, setNumberOfImages] = useState<'1' | '4'>('1');
 
   const onSubmit = async ({ prompt }: any) => {
-    setGenerateError(false);
+    setGenerateError( false );
+          console.log("----process.env.NEXT_PUBLIC_api_ke2y-",process.env.NEXT_PUBLIC_api_key)
+
     if (prompt === 'test') {
       // setError('words', { type: 'custom', message: 'custom message' });
       setGeneratedImages(['/generated/space1.png']);
@@ -241,6 +243,7 @@ export default function Mint() {
         return oldProgress + 1;
       });
     }, x);
+        console.log("----process.env.NEXT_PUBLIC_api_ke2y-",process.env.NEXT_PUBLIC_api_key)
 
     try {
       const response = await fetch(

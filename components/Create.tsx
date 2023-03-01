@@ -74,8 +74,12 @@ export default function Create() {
     formState,
   } = useForm();
 
-  const onSubmitGenerate = async ({ prompt }: any) => {
+  const onSubmitGenerate = async ( { prompt }: any ) =>
+  {
+          console.log("----process.env.NEXT_PUBLIC_api_key-1",process.env.NEXT_PUBLIC_api_key)
+
     setGeneratedImages([]);
+      console.log("----process.env.NEXT_PUBLIC_api_ke2y-",process.env.NEXT_PUBLIC_api_key)
 
     let result = { images: [], error: '' };
 
@@ -95,7 +99,9 @@ export default function Create() {
       });
     }, 75);
 
-    try {
+    try
+    {
+      console.log("----process.env.NEXT_PUBLIC_api_key-",process.env.NEXT_PUBLIC_api_key)
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_api_key}/generate`,
         {
