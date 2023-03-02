@@ -1,7 +1,7 @@
 import { backOff } from "exponential-backoff"
 import { Session } from "next-auth"
 import { useState } from "react"
-import toast from "react-hot-toast"
+// import toast from "react-hot-toast"
 import {
   WalletDocument,
   WalletState,
@@ -39,7 +39,8 @@ const transferNFTModel = async (
 ) => {
   let toastId
   try {
-    toastId = toast.loading("Minting your NFTs...")
+    // toastId = toast.loading("Minting your NFTs...")
+    console.log("Minting your NFTs...")
     await readyWallet(session)
     const { transfer } = await backendClient<TransferMutation, TransferMutationVariables>(
       "transferNFTModel",
@@ -47,11 +48,11 @@ const transferNFTModel = async (
         nftModelId,
       }
     )
-    toast.success("Successfully minted your NFTs to your Niftory Wallet", { id: toastId })
+    console.log("Successfully minted your NFTs to your Niftory Wallet", { id: toastId })
     onTransferEnd?.()
     return transfer
   } catch (e) {
-    toast.error("Uh Oh, there was an error while minting your NFTs. Redirecting...", {
+    console.log("Uh Oh, there was an error while minting your NFTs. Redirecting...", {
       id: toastId,
     })
     throw new Error("Error transferring NFTs to wallet")

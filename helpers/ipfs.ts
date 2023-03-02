@@ -47,7 +47,7 @@ export const generateImageURI = async (
   if (infura) {
     imageURI = 'https://aigenerated.infura-ipfs.io/ipfs/' + imageURI.slice(7);
   }
-  return imageURI;
+  return imageURI.slice(7);
 };
 
 export const generateMetadataURI = async (

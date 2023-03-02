@@ -9,6 +9,10 @@ import {
   FaChevronDown,
   FaChevronUp,
 } from 'react-icons/fa';
+import { useGraphQLQuery } from "../src/graphql/useGraphQLQuery"
+
+import { useAuthContext } from "../src/hooks/useAuthContext"
+
 import { TbWorld } from 'react-icons/tb';
 import { FiExternalLink } from 'react-icons/fi';
 import { FaDog } from 'react-icons/fa';
@@ -25,11 +29,47 @@ import {
 
 import mayurimg from "./mayur.jpg"
 // import NFT from '../contracts/out/NFT.sol/NFT.json';
-import { backendClient } from "../src/graphql/backendClient"
 import {
   UploadNftContentMutation,
   UploadNftContentMutationVariables,
+  CreateNftModelMutation,
+  CreateNftModelMutationVariables,
+  CreateNftSetMutation,
+  GetNftSetsQuery,
+  GetNftSetsQueryVariables,
+  NftModel,
+  ContractQuery,
+  ContractQueryVariables,
+  NftModelCreateInput,
+  ContractDocument,
+  UserNftsQuery, UserNftsQueryVariables,UserNftsDocument
 } from "../generated/graphql"
+import { backendClient, useBackendClient } from "../src/graphql/backendClient"
+import { useTransfer } from "../src/hooks/useTransfer"
+
+
+
+
+const createNFTModel = async (setId: string, nftModelData: NftModelCreateInput) => {
+  
+  try {
+    console.warn( "Creating your NFTs...", nftModelData)
+    
+    const { createNFTModel } = await backendClient<
+      CreateNftModelMutation,
+      CreateNftModelMutationVariables
+    >("createNFTModel", {
+      setId: setId,
+      data: nftModelData,
+    })
+    console.warn("NFT template created")
+    return createNFTModel as NftModel
+  } catch (e) {
+    console.warn("Uh Oh, there was an error creating your NFT template", { e })
+    throw new Error("Unable to create NFTModel")
+  }
+}
+
 
 export const imagesOptions = [
   {
@@ -193,8 +233,30 @@ export default function Mint() {
     collections['shasta']['the-space-collection'].banner
   );
   const [numberOfImages, setNumberOfImages] = useState<'1' | '4'>('1');
+  const { session, isLoading } = useAuthContext()
+  const [currentNFTModel, setNFTModel] = useState<NftModel>(null)
 
-  const onSubmit = async ({ prompt }: any) => {
+     const { sets: userSets, error } = useBackendClient<GetNftSetsQuery, GetNftSetsQueryVariables>(
+    session ? "getNFTSets" : null,
+    {
+      filter: { tags: [session?.userId as string] },
+    }
+  )
+  const { transferNFTModel } = useTransfer()
+  
+  const {
+    nfts,
+    fetching: fetchingNfts,
+    reExecuteQuery,
+  } = useGraphQLQuery<UserNftsQuery, UserNftsQueryVariables>({
+    query: UserNftsDocument,
+    requestPolicy: "network-only",
+    pause: isLoading,
+  })  
+
+  const onSubmit = async ( { prompt, values, actions }: any ) =>
+  {
+    // console.log( nfts, "nfts" ); return;
     setGenerateError( false );
           console.log("----process.env.NEXT_PUBLIC_api_ke2y-",process.env.NEXT_PUBLIC_api_key)
 
@@ -321,7 +383,7 @@ export default function Mint() {
     setNumberOfImages(selectedOption.value);
   };
 
-  const mintNft = async () => {
+  const mintNft = async (values, actions) => {
     if (!tronWeb || generatedImages.length === 0) return;
     const generatedImage = generatedImages[chosenIndex];
     try {
@@ -344,22 +406,71 @@ export default function Mint() {
           UploadNftContentMutation,
           UploadNftContentMutationVariables
         >("fileUpload", {
-          name: "file.name",
+          name: generatedImage,
           description: "Created using Mintme by Niftory",
           contentType: "image/jpeg",
           posterContentType: "image/jpeg",
         })
-
+        console.log("uploadNFTContent ------->>>>>", uploadNFTContent)
       // s
+      const collectibleData = {
+        title: "ai",
+        subtitle: "values.subtitle",
+        description: "descriptio",
+        quantity: 1,
+        contentId: "4f7c2c36-944b-4e3d-92ef-dc0f9be27168",
+        status: "DRAFT" as any,
+        metadata: { "user": "own", "color": "red" },
+      };
 
+      // if (!session) {
+      //   localStorage.setItem("COLLECTIBLE_CREATE_DATA", JSON.stringify(values))
+      //   signIn("/app/new-item?fromRedirect=true")
+      //   return
+      // }
+      
+      let createNFTModelData = currentNFTModel
+
+      if (!createNFTModelData) {
+        let currentSet = userSets?.[0]
+        if (!currentSet) {
+          const { createNFTSet: createNFTSetData } = await backendClient<CreateNftSetMutation>(
+            "createNFTSet"
+          )
+          currentSet = createNFTSetData
+        }
+        console.warn("data ------>>>>>>>", currentSet?.id)
+        createNFTModelData = await createNFTModel(currentSet?.id, collectibleData)
+      }
+
+      if (createNFTModelData.id != null) {
+        try {
+          await backendClient("updateNFTModel", {
+            data: collectibleData,
+            updateNftModelId: createNFTModelData.id,
+          })
+          await transferNFTModel(createNFTModelData.id , session)
+        } catch (e) {
+          // Route to account as wallet state is creation failed
+          // router.push("/app/account")
+          alert("/app/account")
+          return
+        }
+      }
+
+        // const { contract } = useGraphQLQuery<ContractQuery, ContractQueryVariables>({
+        //   query: ContractDocument,
+        // })
+
+
+        //   const { name, address } = contract
+        // const path = `A.${address.replace("0x", "")}.${name}`
       // address, date, creator, tokenId
-      setTimeout(() => {
+      setTimeout((currentSet) => {
         setMintingStatus('minted');
 
         setNftLink(
-          `https://testnet.flowscan.org/${
-            chosenCollection.address
-          }/${nextTokenId}`
+          `https://testnet.flowscan.org/contract/${createNFTModelData?.id}`
         );
       }, 7500);
     } catch (e) {
@@ -367,6 +478,91 @@ export default function Mint() {
       setMintingStatus('mint');
     }
   };
+
+
+
+  // useEffect(() => {
+  //   console.warn(session)
+  // }, [session])
+  
+
+
+  //  const handleSubmitNew = async ( values, actions ) =>
+  //   {
+  //   try {
+
+
+      
+  //     // actions.setSubmitting(true)
+  //     // setIsSubmitting(true)
+  //     // const { errors } = collectibleFormValidation({
+  //     //   values,
+  //     // })
+
+  //     // actions.setErrors(errors)
+  //     // if (Object.keys(errors).length !== 0) {
+  //     //   actions.setSubmitting(false)
+  //     //   setIsSubmitting(false)
+  //     //   return
+  //     // }
+
+  //     // Reset form dirty state so confirm prompt is not shown
+  //     // actions.resetForm({ values })
+
+  //     const collectibleData = {
+  //       title: values.title,
+  //       subtitle: values.subtitle,
+  //       description: values.description,
+  //       quantity: +values.numEntities,
+  //       contentId: values.contentId,
+  //       status: "DRAFT" as any,
+  //       // metadata: metadataToJson(values.metadata.filter((item) => item.key && item.val)),
+  //     }
+
+  //     // if (!session) {
+  //     //   localStorage.setItem("COLLECTIBLE_CREATE_DATA", JSON.stringify(values))
+  //     //   signIn("/app/new-item?fromRedirect=true")
+  //     //   return
+  //     // }
+
+  //     let createNFTModelData = currentNFTModel
+
+  //     if (!createNFTModelData) {
+  //       let currentSet = userSets?.[0]
+  //       if (!currentSet) {
+  //         const { createNFTSet: createNFTSetData } = await backendClient<CreateNftSetMutation>(
+  //           "createNFTSet"
+  //         )
+  //         currentSet = createNFTSetData
+  //       }
+  //       console.warn("data ------>>>>>>>", currentSet?.id)
+  //       createNFTModelData = await createNFTModel(currentSet?.id, metadataURI)
+  //     }
+
+  //     if (createNFTModelData.id != null) {
+  //       try {
+  //         await backendClient("updateNFTModel", {
+  //           data: collectibleData,
+  //           updateNftModelId: createNFTModelData.id,
+  //         })
+  //         await transferNFTModel(createNFTModelData.id , session)
+  //       } catch (e) {
+  //         // Route to account as wallet state is creation failed
+  //         // router.push("/app/account")
+  //         alert("/app/account")
+  //         return
+  //       }
+  //     }
+
+  //     // router.push( `/app/collection${ isDraft ? "/created" : "" }` )
+  //      alert("router.push( `/app/collection${ isDraft ? crated")
+  //   } catch (e) {
+  //     console.error(e)
+  //   } finally {
+  //     actions.setSubmitting(false)
+  //     // setIsSubmitting(false)
+  //   }
+  // }
 
   useEffect(() => {
     if (!collection || !network || !tronWeb) return;
@@ -658,7 +854,7 @@ export default function Mint() {
               <div className="flex flex-col gap-2 bg-zinc-800 rounded-md p-4">
                 <p className="text-sm">Creator</p>
                 <p className="text-xs md:text-sm overflow-x-scroll">
-                  {tronWeb ? tronWeb.defaultAddress.base58 : '0x0'}
+                  {session ? session?.user.name : '0x0'}
                 </p>
               </div>
             </div>
@@ -708,7 +904,7 @@ export default function Mint() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <span>View on Apenft</span>
+                  <span>View on Flow Scan</span>
                   <FiExternalLink />
                 </a>
                 <p className="text-xs text-gray-400">

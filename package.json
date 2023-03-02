@@ -34,7 +34,8 @@
     "tronweb": "^4.4.0",
     "url-join": "^5.0.0",
     "urql": "^3.0.3",
-    "openid-client": "5.1.7"
+    "openid-client": "5.1.7",
+    "exponential-backoff": "^3.1.0"
   },
   "devDependencies": {
     "@graphql-codegen/add": "^3.2.0",

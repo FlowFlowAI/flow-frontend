@@ -231,7 +231,7 @@ export default function Header ()
 
           
           {(!session)
-            ? <button onClick={onClick}> Sign in with Google </button>
+            ? <button onClick={onClick}> Sign in with Niftory </button>
             : <button
       onClick={() => {
         signOut()
