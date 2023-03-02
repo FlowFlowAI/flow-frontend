@@ -33,6 +33,64 @@ export default function Header ()
   }
 
 
+ const { signOut } = useAuthContext()
+   const menuItems = React.useMemo(() => {
+    if (!session) {
+      return [
+        {
+          title: "Get In",
+          component: (
+            <button
+             
+              onClick={onClick}
+             
+            >
+              Sign in with Google
+            </button>
+          ),
+        },
+      
+      ]
+    } else {
+      return [
+        {
+          title: "New Collection",
+          href: "/",
+          component: (
+            <Link href="/app/collection" passHref>
+            
+               My Collection
+            </Link>
+          ),
+        },
+        {
+          title: "New Item",
+          href: "/app/new-item",
+          component: (
+            <Link href="/app/new-item" passHref>
+              
+                
+                Create
+              
+            </Link>
+          ),
+        },
+        {
+          href: "/app/account",
+          component: (
+            <Link href="/app/account" passHref>
+            Account
+              
+            </Link>
+          ),
+        },
+       
+      ]
+    }
+  }, [session])
+
+
+
   useEffect( () => fcl.currentUser.subscribe( setUser ), [] )
   
   const AuthedState = () => {
@@ -169,21 +227,25 @@ export default function Header ()
             >
               Connect Now!
             </button> */}
+         
+
           
-          <button
-              
-             
-             
-              onClick={onClick}
-            
-            >
-              Sign in with Google
-          </button>
+          {(!session)
+            ? <button onClick={onClick}> Sign in with Google </button>
+            : <button
+      onClick={() => {
+        signOut()
+      }}
+    >
+      Log Out
+    </button>
+          }
+         
           
           {user.loggedIn
-        ? <AuthedState />
-        : <UnauthenticatedState />
-      }
+            ? <AuthedState />
+            : <UnauthenticatedState />
+          }
         </div>
       </div>
     </div>
