@@ -13,18 +13,18 @@ You choose a collection, we have 4 test collections for the hackathon. They are 
 
 If you choose "The Random Collection", you can write whatever you want in the prompt. For example, you can write something like "mad yoda eating a sandwich". This will trigger a request to our backend, where we run the model Stable Diffusion. Stable Diffusion will generate 1 or 4 images for you (depending on what you choose), and send them back to your browser. You can now choose to mint the Mad Yoda. When minting, the chosen Mad Yoda image will get uploaded to ipfs and then get minted on the chosen chain (Tron mainnet or Shasta testnet). When the minting is done, you can view the NFT at https://apenft.io. In fact, I did all of this, and here is the Mad Yoda I generated and minted: https://apenft.io/assets/TQNUyaZxpkYHUtk31LGXHtduanGrYnVau6/11
 
-If you choose any of the other collections, then your prompt need to involve a word that is related to the connection. The words are shown on the page where you generate the images! You can test it for yourself here https://lazara.ai/create.
+If you choose any of the other collections, then your prompt need to involve a word that is related to the connection. The words are shown on the page where you generate the images! You can test it for yourself here https://xpromptnft.xyz/create.
 
 ## How we built it
 
 The project is a combination of on-chain code (the NFT contracts), client code and a python API. The client sends a request with the prompt to the API, which in turn responds with the generated image. The generated image then gets uploaded to IPFS from the client, and minted on the blockchain by calling the NFT contract.
 
 **Contracts**:
-Written in Solidity, can be found here: https://github.com/holma91/lazara/tree/main/contracts
+Written in Solidity, can be found here: https://github.com/holma91/xpromptnft/tree/main/contracts
 **Frontend**:
-Written in Typescript with React, can be found here: https://github.com/holma91/lazara/tree/main/frontend
+Written in Typescript with React, can be found here: https://github.com/holma91/xpromptnft/tree/main/frontend
 **Backend**:
-Written in Python with FastAPI, can be found here: https://github.com/holma91/lazara/tree/main/backend
+Written in Python with FastAPI, can be found here: https://github.com/holma91/xpromptnft/tree/main/backend
 
 ## Challenges we ran into
 
@@ -38,6 +38,6 @@ We think that the UI and UX is very good, and recommend you to test it! Apart fr
 
 That FastAPI is an awesome framework for building APIs quick in python. We also got to learn a little deeper how these diffusion models actually work, and this video was a good resource https://youtu.be/1CIpzeNxIhU .
 
-## What's next for Lazara - AI generated NFTs
+## What's next for xpromptnft - AI generated NFTs
 
 We want to support more models than we do currently! There are some open source models that we haven't integrated yet, but we are also eagerly waiting for Google to launch access to Imagen, and OpenAI to launch API access for DALL-E 2. We also want to finish the "Create a Collection" part of the website. It's also possible that we look into "image to image" generation, where users will be able to upload an image to the model, and the model will adjust it in some specified way and then return it.

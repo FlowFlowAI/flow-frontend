@@ -69,7 +69,7 @@ function MyApp({ Component, pageProps: { session, auth, ...pageProps } }: AppPro
   return (
     <>
       <Head>
-        <title>LAZARA</title>
+        <title>XPROMPT NFT</title>
         <meta
           name="AI generated NFTs"
           content="AI generated NFTs on the Tron blockchain"

@@ -1,8 +1,8 @@
-**Project Name**: Lazara - Generate NFTs with AI models
+**Project Name**: xpromptnft - Generate NFTs with AI models
 
 **Project Track**: NFT
 
-**Team Name**: Lazara
+**Team Name**: xpromptnft
 
 **Team Member(s)**: 1, @alleh
 
